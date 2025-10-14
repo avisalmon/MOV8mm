@@ -1,0 +1,80 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Project specific
+Origin/
+input_videos/*
+!input_videos/.gitkeep
+output_videos/*
+!output_videos/.gitkeep
+temp/*
+!temp/.gitkeep
+logs/*
+!logs/.gitkeep
+preview_frames/
+
+# AI Models (large files)
+models/*.pth
+models/*.pkl
+models/*.onnx
+
+# Keep model directory structure
+!models/.gitkeep
+
+# Test videos
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.flv
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Environment variables
+.env
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
