@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered 8mm film restoration using Real-ESRGAN, GFPGAN, and advanced video processing">
+    <title>8mm Film Restoration Pipeline | Bring Your Memories Back to Life</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #8b5cf6;
+            --accent: #f59e0b;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #6b7280;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 0;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links a {
+            margin-left: 2rem;
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: white;
+            padding: 4rem 0;
+            margin: 2rem 0;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Video Comparison */
+        .video-comparison {
+            background: white;
+            padding: 3rem 0;
+            margin: 2rem 0;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .video-comparison h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: var(--dark);
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .video-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-label {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        .video-label.original {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .video-label.restored {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Features */
+        .features {
+            background: white;
+            padding: 4rem 0;
+            margin: 2rem 0;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            padding: 2rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        /* Getting Started */
+        .getting-started {
+            background: white;
+            padding: 4rem 0;
+            margin: 2rem 0;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .getting-started h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .steps {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .step {
+            display: flex;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .step:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-right: 1.5rem;
+            min-width: 50px;
+        }
+
+        .step-content h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .step-content code {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        /* Stats */
+        .stats {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 4rem 0;
+            margin: 2rem 0;
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat h3 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* CTA */
+        .cta {
+            background: white;
+            padding: 4rem 0;
+            margin: 2rem 0 4rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin: 0 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--gray), var(--dark));
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem 0;
+            text-align: center;
+            color: var(--gray);
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate {
+            animation: fadeInUp 0.8s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">🎬 8mm Film Restoration</div>
+                <nav class="nav-links">
+                    <a href="#comparison">See the Magic</a>
+                    <a href="#features">Features</a>
+                    <a href="#getting-started">Get Started</a>
+                    <a href="https://github.com/avisalmon/MOV8mm" target="_blank">GitHub</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Hero -->
+        <section class="hero animate">
+            <h1>Bring Your Memories Back to Life</h1>
+            <p>
+                Transform grainy, flickering 8mm home movies into stunning HD videos using cutting-edge AI technology.
+                Powered by Real-ESRGAN, GFPGAN, and advanced video processing algorithms.
+            </p>
+        </section>
+
+        <!-- Video Comparison -->
+        <section id="comparison" class="video-comparison animate">
+            <div class="container">
+                <h2>See the Transformation</h2>
+                <div class="video-grid">
+                    <div class="video-card">
+                        <div class="video-label original">📼 Original</div>
+                        <div class="video-wrapper">
+                            <iframe 
+                                src="https://www.youtube.com/embed/8OdTgZEPM6A?autoplay=1&loop=1&mute=1&playlist=8OdTgZEPM6A&controls=1&modestbranding=1"
+                                allow="autoplay; encrypted-media"
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                    <div class="video-card">
+                        <div class="video-label restored">✨ AI Restored</div>
+                        <div class="video-wrapper">
+                            <iframe 
+                                src="https://www.youtube.com/embed/_CahlHItE6g?autoplay=1&loop=1&mute=1&playlist=_CahlHItE6g&controls=1&modestbranding=1"
+                                allow="autoplay; encrypted-media"
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+                <p style="text-align: center; color: var(--gray); font-size: 1.1rem; margin-bottom: 3rem;">
+                    Watch side-by-side comparison: Grainy original vs AI-enhanced restoration
+                </p>
+
+                <!-- Scanner Section -->
+                <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+                    <h3 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--dark);">
+                        📷 How I Digitized the Films
+                    </h3>
+                    <p style="color: var(--gray); font-size: 1.1rem; margin-bottom: 2rem;">
+                        I used my <strong>Kodak scanner</strong> to digitize these precious 8mm films frame by frame, 
+                        preserving every moment before applying AI restoration.
+                    </p>
+                    <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); margin-bottom: 1rem;">
+                        <img src="my_scanner.jpeg" 
+                             alt="Kodak 8mm film scanner setup" 
+                             style="width: 100%; height: auto; display: block;">
+                    </div>
+                    <p style="color: var(--gray); font-size: 0.95rem; font-style: italic;">
+                        My Kodak scanner setup for frame-by-frame digitization
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="stats">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat">
+                        <h3>98%</h3>
+                        <p>GPU Utilization</p>
+                    </div>
+                    <div class="stat">
+                        <h3>2x-4x</h3>
+                        <p>AI Upscaling</p>
+                    </div>
+                    <div class="stat">
+                        <h3>7-Frame</h3>
+                        <p>Temporal Denoising</p>
+                    </div>
+                    <div class="stat">
+                        <h3>6 Steps</h3>
+                        <p>Enhancement Pipeline</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section id="features" class="features">
+            <div class="container">
+                <h2>Powerful AI Enhancement Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Video Stabilization</h3>
+                        <p>Remove camera shake using OpenCV motion estimation. Smooth, steady footage from handheld projector scans.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">✨</div>
+                        <h3>Deflickering</h3>
+                        <p>Eliminate brightness flickering from old projectors using temporal median filtering. Consistent, smooth playback.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🧹</div>
+                        <h3>Temporal Denoising</h3>
+                        <p>Advanced 7-frame Non-Local Means algorithm removes grain while preserving details. Cinema-quality clarity.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🚀</div>
+                        <h3>AI Upscaling</h3>
+                        <p>Real-ESRGAN neural network upscales to 2x or 4x resolution. Transform 480p footage to stunning 1080p or 4K.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">👤</div>
+                        <h3>Face Restoration</h3>
+                        <p>GFPGAN v1.4 enhances facial details. See your loved ones' faces with incredible clarity and sharpness.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h3>Detail Enhancement</h3>
+                        <p>Smart unsharp masking with edge detection. Brings out fine details without introducing artifacts.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Getting Started -->
+        <section id="getting-started" class="getting-started">
+            <div class="container">
+                <h2>Get Started in Minutes</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Clone the Repository</h3>
+                            <p><code>git clone https://github.com/avisalmon/MOV8mm.git</code></p>
+                            <p>Download the complete pipeline to your computer.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Install Dependencies</h3>
+                            <p><code>pip install -r requirements.txt</code></p>
+                            <p>Requires Python 3.12+, CUDA 12.1+, and 8GB+ GPU VRAM.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Run Setup</h3>
+                            <p><code>python setup.py</code></p>
+                            <p>Automatically downloads AI models and configures your environment.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Restore Your Films!</h3>
+                            <p><code>python scripts/enhance_video.py input.mp4 --upscale 2</code></p>
+                            <p>Transform your precious memories with one command.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Requirements -->
+        <section class="features">
+            <div class="container">
+                <h2>System Requirements</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🖥️</div>
+                        <h3>Operating System</h3>
+                        <p>Windows 10/11, Linux, or macOS with Python 3.12+</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎮</div>
+                        <h3>GPU Required</h3>
+                        <p>NVIDIA GPU with 8GB+ VRAM (tested on RTX 4060). CUDA 12.1+ required.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⏱️</div>
+                        <h3>Processing Time</h3>
+                        <p>~1 hour for 10 seconds, ~6 hours for 60 seconds of footage (RTX 4060).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta">
+            <div class="container">
+                <h2>Ready to Restore Your Memories?</h2>
+                <p>Join the community and bring your family's history back to life</p>
+                <a href="https://github.com/avisalmon/MOV8mm" class="btn" target="_blank">
+                    View on GitHub →
+                </a>
+                <a href="https://github.com/avisalmon/MOV8mm/blob/main/README.md" class="btn btn-secondary" target="_blank">
+                    Read Documentation
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Built with ❤️ for preserving family memories | Powered by Real-ESRGAN & GFPGAN</p>
+            <p>Open Source Project | <a href="https://github.com/avisalmon/MOV8mm" style="color: var(--primary);">GitHub Repository</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
