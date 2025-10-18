@@ -1,0 +1,78 @@
+{
+  "description": "Maximum Quality Setup - All Enhancements Including Slow Steps",
+  "version": "1.0",
+  "pipeline": {
+    "steps": [
+      {
+        "name": "stabilization",
+        "enabled": true,
+        "parameters": {}
+      },
+      {
+        "name": "deflicker",
+        "enabled": true,
+        "parameters": {
+          "window": 15,
+          "strength": 0.8
+        }
+      },
+      {
+        "name": "scratch_removal",
+        "enabled": true,
+        "description": "AI scratch removal - very slow but excellent quality",
+        "parameters": {
+          "threshold": 0.3,
+          "model": "realesrgan_x2plus"
+        }
+      },
+      {
+        "name": "denoising",
+        "enabled": true,
+        "parameters": {
+          "strength": 0.7,
+          "temporal": true,
+          "method": "gaussian"
+        }
+      },
+      {
+        "name": "upscaling",
+        "enabled": true,
+        "parameters": {
+          "scale": 4,
+          "model": "realesrgan_x4plus",
+          "tile_size": 2048
+        }
+      },
+      {
+        "name": "face_restoration",
+        "enabled": true,
+        "parameters": {
+          "weight": 0.5,
+          "upscale": 2
+        }
+      },
+      {
+        "name": "detail_enhancement",
+        "enabled": true,
+        "parameters": {
+          "method": "adaptive",
+          "radius": 2.5,
+          "amount": 2.0,
+          "strength": 1.0
+        }
+      }
+    ],
+    "output": {
+      "fps": null,
+      "codec": "libx264",
+      "crf": 16,
+      "preset": "slow",
+      "use_nvenc": false
+    },
+    "processing": {
+      "gpu_device": "cuda:0",
+      "save_intermediate": true,
+      "temp_directory": "temp"
+    }
+  }
+}

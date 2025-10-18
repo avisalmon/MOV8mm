@@ -411,8 +411,9 @@
         <section class="hero animate">
             <h1>Bring Your Memories Back to Life</h1>
             <p>
-                Transform grainy, flickering 8mm home movies into stunning HD videos using cutting-edge AI technology.
-                Powered by Real-ESRGAN, GFPGAN, and advanced video processing algorithms.
+                Transform grainy 8mm home movies into stunning HD videos with our GPU-accelerated AI pipeline.
+                Featuring optimized Real-ESRGAN, GFPGAN face restoration, and professional-grade enhancement.
+                Process 10-second clips in just 5-6 minutes!
             </p>
         </section>
 
@@ -494,37 +495,37 @@
         <!-- Features -->
         <section id="features" class="features">
             <div class="container">
-                <h2>Powerful AI Enhancement Features</h2>
+                <h2>Optimized GPU-Accelerated Pipeline</h2>
                 <div class="feature-grid">
                     <div class="feature-card">
                         <div class="feature-icon">🎯</div>
-                        <h3>Video Stabilization</h3>
-                        <p>Remove camera shake using OpenCV motion estimation. Smooth, steady footage from handheld projector scans.</p>
+                        <h3>Stabilization + Crop</h3>
+                        <p>Remove camera shake with 10% edge crop. Eliminates black borders and damaged film edges for professional results.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">✨</div>
                         <h3>Deflickering</h3>
-                        <p>Eliminate brightness flickering from old projectors using temporal median filtering. Consistent, smooth playback.</p>
+                        <p>Fix brightness flickering from old projectors. Temporal median filtering for consistent, smooth playback.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">🧹</div>
-                        <h3>Temporal Denoising</h3>
-                        <p>Advanced 7-frame Non-Local Means algorithm removes grain while preserving details. Cinema-quality clarity.</p>
+                        <h3>GPU Denoising</h3>
+                        <p>93x faster than CPU! GPU-accelerated temporal grain removal (0.14 sec/frame) while preserving details.</p>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon">🚀</div>
-                        <h3>AI Upscaling</h3>
-                        <p>Real-ESRGAN neural network upscales to 2x or 4x resolution. Transform 480p footage to stunning 1080p or 4K.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">👤</div>
+                        <div class="feature-icon">�</div>
                         <h3>Face Restoration</h3>
-                        <p>GFPGAN v1.4 enhances facial details. See your loved ones' faces with incredible clarity and sharpness.</p>
+                        <p>GFPGAN v1.4 with weight 0.7 for natural enhancement. Runs BEFORE interpolation to prevent flickering.</p>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon">🔍</div>
+                        <div class="feature-icon">�</div>
                         <h3>Detail Enhancement</h3>
-                        <p>Smart unsharp masking with edge detection. Brings out fine details without introducing artifacts.</p>
+                        <p>Adaptive unsharp masking (crisp preset). Edge-aware sharpening that ignores grain. Tested and optimized.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎨</div>
+                        <h3>Color Correction</h3>
+                        <p>Natural "soft" preset with minimal processing. Preserves authentic film look without over-enhancement.</p>
                     </div>
                 </div>
             </div>
@@ -563,8 +564,8 @@
                         <div class="step-number">4</div>
                         <div class="step-content">
                             <h3>Restore Your Films!</h3>
-                            <p><code>python scripts/enhance_video.py input.mp4 --upscale 2</code></p>
-                            <p>Transform your precious memories with one command.</p>
+                            <p><code>python scripts/enhance_video.py input_videos/film.MP4 --cut 0 10 --setup</code></p>
+                            <p>Process your first 10-second test clip in just 5-6 minutes!</p>
                         </div>
                     </div>
                 </div>
@@ -589,7 +590,7 @@
                     <div class="feature-card">
                         <div class="feature-icon">⏱️</div>
                         <h3>Processing Time</h3>
-                        <p>~1 hour for 10 seconds, ~6 hours for 60 seconds of footage (RTX 4060).</p>
+                        <p>~5-6 minutes for 10 seconds @ 20fps (200 frames). 30-second clip: ~15 min. 60-second clip: ~30 min (RTX 4060).</p>
                     </div>
                 </div>
             </div>

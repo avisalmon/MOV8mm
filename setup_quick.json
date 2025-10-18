@@ -1,0 +1,59 @@
+{
+  "description": "Quick Test Setup - Fast Processing for Testing",
+  "version": "1.0",
+  "pipeline": {
+    "steps": [
+      {
+        "name": "stabilization",
+        "enabled": true,
+        "description": "Remove camera shake",
+        "parameters": {}
+      },
+      {
+        "name": "deflicker",
+        "enabled": false,
+        "description": "Skipped for speed",
+        "parameters": {}
+      },
+      {
+        "name": "denoising",
+        "enabled": false,
+        "description": "Skipped for speed",
+        "parameters": {}
+      },
+      {
+        "name": "upscaling",
+        "enabled": true,
+        "description": "AI upscaling only",
+        "parameters": {
+          "scale": 2,
+          "model": "realesrgan_x2plus",
+          "tile_size": 2048
+        }
+      },
+      {
+        "name": "face_restoration",
+        "enabled": false,
+        "description": "Skipped for speed",
+        "parameters": {}
+      },
+      {
+        "name": "detail_enhancement",
+        "enabled": false,
+        "description": "Skipped for speed",
+        "parameters": {}
+      }
+    ],
+    "output": {
+      "fps": null,
+      "codec": "libx264",
+      "crf": 18,
+      "use_nvenc": false
+    },
+    "processing": {
+      "gpu_device": "cuda:0",
+      "save_intermediate": true,
+      "temp_directory": "temp"
+    }
+  }
+}

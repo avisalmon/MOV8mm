@@ -14,7 +14,7 @@ from loguru import logger
 sys.path.append(str(Path(__file__).parent.parent))
 import config
 
-def restore_faces(input_path, output_path=None):
+def restore_faces(input_path, output_path=None, weight=0.7):
     """
     Restore and enhance faces using GFPGAN
     Perfect for 8mm home movies with people
@@ -22,6 +22,8 @@ def restore_faces(input_path, output_path=None):
     Args:
         input_path: Path to input video
         output_path: Path to save enhanced video (optional)
+        weight: Blend weight for restored faces (0.0-1.0, default 0.7)
+                Higher = more AI enhancement, Lower = more original
     
     Returns:
         Path to face-restored video
@@ -39,7 +41,7 @@ def restore_faces(input_path, output_path=None):
     use_gpu = config.USE_GPU and torch.cuda.is_available()
     device = torch.device(f"cuda:{config.GPU_ID}" if use_gpu else "cpu")
     
-    logger.info(f"Face restoration on {input_path.name} using device: {device}...")
+    logger.info(f"Face restoration on {input_path.name} using device: {device}, weight: {weight}...")
     
     # Import GFPGAN
     try:
@@ -98,7 +100,7 @@ def restore_faces(input_path, output_path=None):
                 has_aligned=False,
                 only_center_face=False,
                 paste_back=True,
-                weight=0.5  # Blend restored faces with original (0.5 = 50% blend)
+                weight=weight  # Blend restored faces with original
             )
             out.write(restored_frame)
         except Exception as e:

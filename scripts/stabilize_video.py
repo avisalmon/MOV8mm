@@ -13,13 +13,15 @@ from loguru import logger
 sys.path.append(str(Path(__file__).parent.parent))
 import config
 
-def stabilize(input_path, output_path=None):
+def stabilize(input_path, output_path=None, crop_percent=10.0):
     """
     Stabilize video using OpenCV
     
     Args:
         input_path: Path to input video
         output_path: Path to save stabilized video (optional)
+        crop_percent: Percentage to crop from edges (0-20, default 10)
+                     This removes black borders from stabilization
     
     Returns:
         Path to stabilized video
@@ -41,6 +43,16 @@ def stabilize(input_path, output_path=None):
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    
+    # Calculate crop dimensions
+    crop_percent = max(0, min(crop_percent, 20))  # Limit to 0-20%
+    crop_x = int(width * crop_percent / 200)  # Divide by 200 to get half the percentage for each side
+    crop_y = int(height * crop_percent / 200)
+    
+    output_width = width - 2 * crop_x
+    output_height = height - 2 * crop_y
+    
+    logger.info(f"Original: {width}x{height}, Cropped: {output_width}x{output_height} ({crop_percent}% crop)")
     
     # Read first frame
     ret, prev_frame = cap.read()
@@ -123,7 +135,7 @@ def stabilize(input_path, output_path=None):
     logger.info("Applying stabilization...")
     cap = cv2.VideoCapture(str(input_path))
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(str(output_path), fourcc, fps, (width, height))
+    out = cv2.VideoWriter(str(output_path), fourcc, fps, (output_width, output_height))
     
     pbar = tqdm(total=frame_count, desc="Stabilizing", disable=not config.SHOW_PROGRESS_BAR)
     
@@ -144,8 +156,12 @@ def stabilize(input_path, output_path=None):
             # Apply affine transformation
             frame_stabilized = cv2.warpAffine(frame, m, (width, height), 
                                              borderMode=cv2.BORDER_REPLICATE)
+            
+            # Crop to remove black borders
+            frame_stabilized = frame_stabilized[crop_y:height-crop_y, crop_x:width-crop_x]
         else:
-            frame_stabilized = frame
+            # Crop original frame if no transform
+            frame_stabilized = frame[crop_y:height-crop_y, crop_x:width-crop_x]
         
         out.write(frame_stabilized)
         pbar.update(1)
@@ -170,11 +186,13 @@ def main():
     parser = argparse.ArgumentParser(description="Stabilize shaky 8mm footage")
     parser.add_argument("input", help="Input video file")
     parser.add_argument("-o", "--output", help="Output video file (optional)")
+    parser.add_argument("--crop", type=float, default=10.0, 
+                       help="Crop percentage to remove black borders (0-20, default 10)")
     
     args = parser.parse_args()
     
     Path("logs").mkdir(exist_ok=True)
-    stabilize(args.input, args.output)
+    stabilize(args.input, args.output, crop_percent=args.crop)
 
 if __name__ == "__main__":
     main()

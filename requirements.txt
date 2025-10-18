@@ -34,9 +34,11 @@ lmdb==1.7.3              # Required by BasicSR for dataset management
 lpips==0.1.4             # Perceptual loss metrics for AI models
 
 # ============================================================================
-# RIFE Frame Interpolation (Optional - experimental)
+# Frame Interpolation (Professional - Google FILM)
 # ============================================================================
-cupy-cuda12x==13.6.0     # For CUDA 12.x (change to cupy-cuda11x for CUDA 11.x)
+tensorflow==2.15.0       # TensorFlow for FILM model
+tensorflow-hub           # Access to pre-trained FILM model
+cupy-cuda12x==13.6.0     # For CUDA 12.x (GPU acceleration)
 einops==0.8.1
 timm==1.0.20
 

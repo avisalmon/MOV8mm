@@ -1,0 +1,133 @@
+{
+  "description": "Optimized 8mm Film Restoration Pipeline - 60fps Natural Look",
+  "version": "2.0",
+  "pipeline": {
+    "steps": [
+      {
+        "name": "stabilization",
+        "enabled": true,
+        "description": "Remove camera shake with 10% edge crop to remove black borders",
+        "parameters": {
+          "smoothing": 30,
+          "crop_percent": 10.0
+        }
+      },
+      {
+        "name": "deflicker",
+        "enabled": true,
+        "description": "Remove brightness flickering from projector scans",
+        "parameters": {
+          "window": 15,
+          "strength": 0.8
+        }
+      },
+      {
+        "name": "denoising",
+        "enabled": true,
+        "description": "GPU-accelerated temporal denoising (tested 0.7/0.8/0.9/1.0, selected 0.7)",
+        "parameters": {
+          "strength": 0.7,
+          "temporal": true,
+          "method": "gaussian"
+        }
+      },
+      {
+        "name": "face_restoration",
+        "enabled": true,
+        "description": "Face enhancement with GFPGAN v1.4 (BEFORE interpolation to prevent flickering)",
+        "parameters": {
+          "weight": 0.7
+        }
+      },
+      {
+        "name": "detail_enhancement",
+        "enabled": true,
+        "description": "Adaptive unsharp masking - CRISP preset (tested subtle/balanced/crisp, selected crisp)",
+        "parameters": {
+          "method": "adaptive",
+          "radius": 2.0,
+          "amount": 2.0,
+          "strength": 1.0
+        }
+      },
+      {
+        "name": "frame_interpolation",
+        "enabled": false,
+        "description": "Frame interpolation (DISABLED - staying at original 20fps for authentic film look)",
+        "parameters": {
+          "target_fps": 60,
+          "flow_quality": "MEDIUM"
+        }
+      },
+      {
+        "name": "color_correction",
+        "enabled": true,
+        "description": "Natural color enhancement - SOFT preset (tested, selected soft for natural look)",
+        "parameters": {
+          "clahe": false,
+          "white_balance": false,
+          "gamma": 0.97,
+          "saturation": 1.05,
+          "shadows": 0.0,
+          "highlights": 0.0
+        }
+      },
+      {
+        "name": "upscaling",
+        "enabled": false,
+        "description": "AI upscaling with Real-ESRGAN (DISABLED - saves 15+ minutes)",
+        "parameters": {
+          "scale": 2,
+          "model": "realesrgan_x2plus",
+          "tile_size": 2048,
+          "tile_pad": 10
+        }
+      },
+      {
+        "name": "scratch_removal",
+        "enabled": false,
+        "description": "AI-based scratch/dust removal (very slow - ~32 sec/frame)",
+        "parameters": {
+          "threshold": 0.3,
+          "model": "realesrgan_x2plus"
+        }
+      },
+      {
+        "name": "frame_interpolation",
+        "enabled": false,
+        "description": "Frame rate increase with RIFE (experimental)",
+        "parameters": {
+          "target_fps": 60,
+          "model": "rife"
+        }
+      }
+    ],
+    "output": {
+      "fps": null,
+      "codec": "libx264",
+      "crf": 18,
+      "preset": "medium",
+      "use_nvenc": false
+    },
+    "processing": {
+      "gpu_device": "cuda:0",
+      "save_intermediate": true,
+      "temp_directory": "temp",
+      "log_level": "INFO"
+    }
+  },
+  "presets": {
+    "quick": {
+      "description": "Fast processing - skip intensive steps",
+      "enabled_steps": ["stabilization", "upscaling"]
+    },
+    "quality": {
+      "description": "Maximum quality - all enhancements (slow)",
+      "enabled_steps": ["stabilization", "deflicker", "denoising", "upscaling", "face_restoration", "detail_enhancement"]
+    },
+    "grain_only": {
+      "description": "Focus on grain removal only",
+      "enabled_steps": ["denoising", "upscaling"]
+    }
+  }
+}
